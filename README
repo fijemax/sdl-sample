@@ -1,0 +1,15 @@
+https://gist.github.com/SergNikitin/d8d9441120d00459201d
+https://github.com/SDL-mirror/SDL -> release-2.0.9
+https://github.com/SDL-mirror/SDL_image -> release-2.0.4
+
+https://cmake.org/cmake-tutorial/
+https://alexandre-laurent.developpez.com/tutoriels/sdl-2/creer-premieres-fenetres/
+
+```
+sudo apt install libpng-dev libjpeg9-dev libsdl2-dev libsdl2-image-dev
+mkdir build && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=../install
+make -j4
+make install
+cd ../install/bin
+./SDL-Test

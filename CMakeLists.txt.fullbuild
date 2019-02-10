@@ -1,0 +1,88 @@
+cmake_minimum_required (VERSION 2.6)
+include(ExternalProject)
+project (SDLTest)
+# The version number.
+set (SDLTest_VERSION_MAJOR 1)
+set (SDLTest_VERSION_MINOR 18)
+ 
+# configure a header file to pass some of the CMake settings
+# to the source code
+configure_file (
+  "${PROJECT_SOURCE_DIR}/include/util/SDLTestConfig.h.in"
+  "${PROJECT_BINARY_DIR}/include/util/SDLTestConfig.h"
+  )
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/3party/SDL_image/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/3party/SDL_image/)
+
+# SDL library
+ExternalProject_Add(sdl2_project
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3party/SDL/
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/3party/SDL/
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<BINARY_DIR>/install
+    BUILD_COMMAND ${MAKE})
+
+ExternalProject_Get_Property(sdl2_project SOURCE_DIR)
+ExternalProject_Get_Property(sdl2_project BINARY_DIR)
+
+set(SDL2_SRC ${SOURCE_DIR})
+set(SDL2_BIN ${BINARY_DIR})
+
+# libPNG library
+ExternalProject_Add(libpng_project
+    SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3party/SDL_image/external/libpng-1.6.32
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/3party/libPNG/
+    CMAKE_ARGS -D DCMAKE_INSTALL_PREFIX=<BINARY_DIR>/install DPNG_TESTS=OFF
+    INSTALL_COMMAND ""
+)
+
+ExternalProject_Get_Property(libpng_project SOURCE_DIR)
+ExternalProject_Get_Property(libpng_project BINARY_DIR)
+
+set(LIBPNG_SRC ${SOURCE_DIR})
+set(LIBPNG_BIN ${BINARY_DIR})
+
+# SDL_image library
+ExternalProject_Add(sdl2_image_project
+    SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3party/SDL_image/
+    DEPENDS sdl2_project libpng_project
+    CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> --enable-shared=no --with-sdl-prefix=${SDL2_BIN}/install --disable-sdltest --enable-jpg-shared=no
+    BUILD_COMMAND <SOURCE_DIR>/autogen.sh && make
+    INSTALL_COMMAND ""
+)
+
+ExternalProject_Get_Property(sdl2_image_project SOURCE_DIR)
+ExternalProject_Get_Property(sdl2_image_project BINARY_DIR)
+
+set(SDL2_IMAGE_SRC ${SOURCE_DIR})
+set(SDL2_IMAGE_BIN ${BINARY_DIR})
+
+
+# Core library
+file(GLOB CoreGlob src/core/*.cpp)
+add_library(Core ${CoreGlob})
+include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
+include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/include")
+include_directories(${SDL2_SRC}/include)
+include_directories(${SDL2_IMAGE_SRC})
+
+# Resource
+file(GLOB AssetsGlob assets/*)
+
+# Exec
+add_executable(SDL-Test main.cpp)
+
+add_dependencies(SDL-Test sdl2_project)
+add_dependencies(SDL-Test sdl2_image_project)
+
+target_link_libraries(SDL-Test Core)
+target_link_libraries(SDL-Test ${SDL2_BIN}/install/lib/libSDL2.a)
+target_link_libraries(SDL-Test ${SDL2_IMAGE_BIN}/.libs/libSDL2_image.a)
+target_link_libraries(SDL-Test dl)
+target_link_libraries(SDL-Test pthread)
+target_link_libraries(SDL-Test sndio)
+
+# Install
+install(FILES ${AssetsGlob} DESTINATION bin)
+install(FILES ${CoreGlob} DESTINATION include)
+install(TARGETS SDL-Test DESTINATION bin)
+install(TARGETS Core DESTINATION lib)
