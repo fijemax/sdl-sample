@@ -13,3 +13,6 @@ make -j4
 make install
 cd ../install/bin
 ./SDL-Test
+
+gcc trace
+-DCMAKE_VERBOSE_MAKEFILE=on

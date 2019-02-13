@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project (SDLTest)
+
 # The version number.
 set (SDLTest_VERSION_MAJOR 1)
 set (SDLTest_VERSION_MINOR 18)
@@ -18,9 +19,12 @@ find_package(SDL2_image REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
 message(${SDL2_IMAGE_LIBRARIES})
 
-# Core library
-file(GLOB CoreGlob src/core/*.cpp)
-add_library(Core ${CoreGlob})
+# Source project
+file(GLOB ProjectSourceGlob
+          src/core/*.cpp
+          src/util/*.cpp
+          src/graphic/*.cpp)
+add_library(Core ${ProjectSourceGlob})
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
