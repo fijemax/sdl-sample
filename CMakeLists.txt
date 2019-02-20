@@ -17,13 +17,18 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
-message(${SDL2_IMAGE_LIBRARIES})
+
+# Box2D libraries
+find_package(Box2D REQUIRED)
+include_directories(${BOX2D_INCLUDE_DIRS})
 
 # Source project
 file(GLOB ProjectSourceGlob
           src/core/*.cpp
           src/util/*.cpp
-          src/graphic/*.cpp)
+          src/node/*.cpp
+          src/graphic/*.cpp
+          src/pysical/*.cpp)
 add_library(Core ${ProjectSourceGlob})
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -36,6 +41,7 @@ add_executable(SDL-Test main.cpp)
 target_link_libraries(SDL-Test Core)
 target_link_libraries(SDL-Test ${SDL2_LIBRARIES})
 target_link_libraries(SDL-Test ${SDL2_IMAGE_LIBRARIES})
+target_link_libraries(SDL-Test ${BOX2D_LIBRARIES})
 
 # Install
 install(FILES ${AssetsGlob} DESTINATION assets)

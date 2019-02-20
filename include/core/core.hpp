@@ -2,7 +2,8 @@
 #define CORE_CORE_HPP
 
 #include <string>
-#include <graphic/window_manager.hpp>
+#include <core/window_manager.hpp>
+#include <graphic/sprites_loader.hpp>
 
 using std::string;
 
@@ -12,13 +13,24 @@ using std::string;
 class Core
 {
 public:
-  Core(std::string *assetsPath) : mIsStart(false), mAssetsPath(assetsPath), mWindowManager(assetsPath) {}
+  Core(std::string *assetsPath)
+      : mRun(false),
+        mAssetsPath(assetsPath),
+        mWindowManager(assetsPath),
+        mTimer() {}
+  ~Core() {}
+
   int startGame();
 
 private:
+  int initMedia();
+  void stopMedia();
+  int gameLoop();
+
+  bool mRun;
   string *mAssetsPath;
-  bool mIsStart;
   WindowManager mWindowManager;
+  Timer mTimer;
 };
 
 #endif // CORE_CORE_HPP
